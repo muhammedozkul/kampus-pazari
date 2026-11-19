@@ -6,6 +6,26 @@ Kütahya Dumlupınar Üniversitesi öğrencilerinin `@ogr.dpu.edu.tr` adresiyle 
 
 > Bilgisayarda çalışan bir öğrenme ve portföy projesidir. Yayında değildir, üniversitenin resmî bir hizmeti değildir.
 
+## Ekran görüntüleri
+
+![İlanların listelendiği ana sayfa](docs/ekran/ana-sayfa.png)
+
+| Giriş | İlan detayı | Özel mesajlar |
+|---|---|---|
+| ![Giriş](docs/ekran/giris.png) | ![İlan detayı](docs/ekran/ilan-detay.png) | ![Özel mesajlar](docs/ekran/mesajlar.png) |
+
+| Kampüs sohbeti | İlan verme | Koyu tema |
+|---|---|---|
+| ![Kampüs sohbeti](docs/ekran/genel-sohbet.png) | ![İlan verme formu](docs/ekran/ilan-ver.png) | ![Koyu tema](docs/ekran/ana-sayfa-koyu.png) |
+
+**Telefonda:**
+
+<p>
+  <img src="docs/ekran/telefon-ana-sayfa.png" alt="Telefonda ana sayfa" width="250">
+  <img src="docs/ekran/telefon-ilan.png" alt="Telefonda ilan" width="250">
+  <img src="docs/ekran/telefon-sohbet.png" alt="Telefonda sohbet" width="250">
+</p>
+
 ## Özellikler
 
 - **Yalnız öğrenci girişi:** öğrenci e-postasına 6 haneli kod gelir, şifre yoktur. Alan adı kontrolü sunucuda yapılır. Kodlar özet (hash) olarak saklanır, 10 dakika geçerlidir ve 5 deneme hakkı vardır; yeni kod isteği hız sınırlıdır.
@@ -24,7 +44,7 @@ Kütahya Dumlupınar Üniversitesi öğrencilerinin `@ogr.dpu.edu.tr` adresiyle 
 | Arayüz | React 19, TypeScript, React Router, Vite |
 | Sunucu | Node.js (TypeScript'i doğrudan çalıştırır), Express 5, `ws` |
 | Veritabanı | Node'un yerleşik `node:sqlite` modülüyle SQLite (11 tablo, yabancı anahtarlar, işlemler) |
-| Testler | `node:test`: geçici veritabanına gerçek HTTP istekleri gönderen 13 API testi |
+| Testler | `node:test`: geçici veritabanına gerçek HTTP istekleri gönderen 17 test |
 
 ## Çalıştırma
 

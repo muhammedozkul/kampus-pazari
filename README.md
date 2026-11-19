@@ -6,6 +6,26 @@ A buy, sell and swap marketplace that only students of Kütahya Dumlupınar Univ
 
 > This is a learning and portfolio project that runs locally. It is not deployed and is not an official university service.
 
+## Screenshots
+
+![Home page with listings](docs/ekran/ana-sayfa.png)
+
+| Sign-in | Listing detail | Private messages |
+|---|---|---|
+| ![Sign-in](docs/ekran/giris.png) | ![Listing detail](docs/ekran/ilan-detay.png) | ![Private messages](docs/ekran/mesajlar.png) |
+
+| Campus chat | New listing | Dark mode |
+|---|---|---|
+| ![Campus chat](docs/ekran/genel-sohbet.png) | ![New listing form](docs/ekran/ilan-ver.png) | ![Dark mode](docs/ekran/ana-sayfa-koyu.png) |
+
+**On a phone:**
+
+<p>
+  <img src="docs/ekran/telefon-ana-sayfa.png" alt="Home on a phone" width="250">
+  <img src="docs/ekran/telefon-ilan.png" alt="Listing on a phone" width="250">
+  <img src="docs/ekran/telefon-sohbet.png" alt="Chat on a phone" width="250">
+</p>
+
 ## Features
 
 - **Student-only sign-in:** a 6-digit code goes to the student email, and there are no passwords. The domain check runs on the server. Codes are stored hashed, expire after 10 minutes and allow 5 attempts, and new codes are rate-limited.
@@ -24,7 +44,7 @@ A buy, sell and swap marketplace that only students of Kütahya Dumlupınar Univ
 | Frontend | React 19, TypeScript, React Router, Vite |
 | Backend | Node.js (runs TypeScript natively), Express 5, `ws` |
 | Database | SQLite through Node's built-in `node:sqlite` (11 tables, foreign keys, transactions) |
-| Tests | `node:test`: 13 API tests that make real HTTP requests against a temporary database |
+| Tests | `node:test`: 17 tests that make real HTTP requests against a temporary database |
 
 ## Run it
 

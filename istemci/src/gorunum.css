@@ -916,9 +916,8 @@ h1 {
   }
   /* Alt menüde seçili sekmenin üstünde ince çizgi */
   .alt-nav {
-    background: color-mix(in srgb, var(--yuzey) 88%, transparent);
-    backdrop-filter: saturate(1.4) blur(14px);
-    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    background: var(--yuzey);
+    box-shadow: 0 -6px 20px -12px rgb(0 0 0 / 0.18);
   }
   .alt-nav a {
     position: relative;
@@ -1254,9 +1253,7 @@ body {
     z-index: 25;
     padding: 10px 10px 10px 16px;
     border-radius: 20px;
-    background: color-mix(in srgb, var(--yuzey) 90%, transparent);
-    backdrop-filter: saturate(1.4) blur(14px);
-    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    background: var(--yuzey);
     box-shadow: var(--golge-buyuk);
     border: 1px solid var(--cizgi);
     align-items: center;
