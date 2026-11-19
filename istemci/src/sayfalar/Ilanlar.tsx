@@ -230,6 +230,13 @@ export default function Ilanlar() {
       )}
       {ilanlar && ilanlar.length > 0 && (
         <>
+          <div className="bolum-ust">
+            <h2>{p.get('q') ? `"${p.get('q')}" için sonuçlar` : tur === 'ariyorum' ? 'Aranan şeyler' : 'Son ilanlar'}</h2>
+            <span className="ince">
+              {ilanlar.length}
+              {dahaVar ? '+' : ''} ilan
+            </span>
+          </div>
           <div className="ilan-izgara">
             {ilanlar.map((i, sira) => (
               <IlanKarti key={i.id} ilan={i} sira={sira} />

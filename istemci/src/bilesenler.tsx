@@ -5,7 +5,7 @@ import { ILAN_TURLERI, KATEGORILER, SIKAYET_NEDENLERI, type IlanTuru, type Kateg
 import { api, fotoAdresi, type Ilan } from './api.ts';
 import { useDurum } from './durum.tsx';
 import { KategoriCizimi } from './cizimler.tsx';
-import { avatarRengi, basHarfler, fiyatYaz, goreceZaman } from './yardimci.ts';
+import { avatarRengi, basHarfler, fiyatYaz, kisaZaman, tarih } from './yardimci.ts';
 
 const YOLLAR: Record<string, ReactNode> = {
   ev: <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" />,
@@ -154,9 +154,11 @@ export function IlanKarti({ ilan, favoriDegisti, sira = 0 }: { ilan: Ilan; favor
         <div className="ilan-karti-alt">
           <span className="kart-kisi">
             <Avatar id={ilan.kullanici.id} ad={ilan.kullanici.ad} boyut={20} />
-            {ilan.kullanici.ad}
+            <span className="kart-kisi-ad">{ilan.kullanici.ad}</span>
           </span>
-          <span>{goreceZaman(ilan.olusturma)}</span>
+          <time className="kart-zaman" dateTime={tarih(ilan.olusturma).toISOString()} title={tarih(ilan.olusturma).toLocaleString('tr-TR')}>
+            {kisaZaman(ilan.olusturma)}
+          </time>
         </div>
       </div>
       {!kendi && (

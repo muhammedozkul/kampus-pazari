@@ -94,7 +94,7 @@ export default function IlanDetay() {
 
   const fotolar = ilan.fotolar;
   return (
-    <div className="sayfa ilan-detay">
+    <div className={`sayfa ilan-detay ${!kendi && ilan.durum === 'aktif' && !mesajKutusu ? 'yapiskan-var' : ''}`}>
       <button className="geri-baglanti" onClick={() => (history.length > 1 ? git(-1) : git('/'))}>
         <Simge ad="geri" boyut={16} /> Geri
       </button>
@@ -102,6 +102,11 @@ export default function IlanDetay() {
         <div className="galeri">
           <div className="galeri-ana">
             {fotolar.length ? <img src={fotoAdresi(fotolar[secili])} alt={ilan.baslik} /> : <KategoriGorseli kategori={ilan.kategori} />}
+            {fotolar.length > 1 && (
+              <span className="galeri-sayac">
+                {secili + 1} / {fotolar.length}
+              </span>
+            )}
             {ilan.durum === 'tamamlandi' && <span className="tamam-serit buyuk">{ilan.tur === 'ariyorum' ? 'Bulundu' : 'Satıldı / takaslandı'}</span>}
             {fotolar.length > 1 && (
               <>
@@ -198,7 +203,10 @@ export default function IlanDetay() {
           ) : (
             <>
               {ilan.durum === 'aktif' && !mesajKutusu && (
-                <div className="eylemler">
+                <div className="eylemler ana-eylem">
+                  <span className="yapiskan-fiyat">
+                    <FiyatEtiketi ilan={ilan} />
+                  </span>
                   <button className="dugme dugme-ana dugme-genis" onClick={() => setMesajKutusu(true)}>
                     <Simge ad="mesaj" boyut={18} /> {ilan.tur === 'ariyorum' ? 'Bende var, yaz' : 'Satıcıya mesaj gönder'}
                   </button>

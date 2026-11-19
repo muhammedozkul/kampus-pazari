@@ -13,6 +13,16 @@ export function goreceZaman(sql: string): string {
   return tarih(sql).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+/** Kartlar için kısa zaman: "az önce", "5 dk", "3 sa", "2 gün", sonra "12 Kas". */
+export function kisaZaman(sql: string): string {
+  const fark = (Date.now() - tarih(sql).getTime()) / 1000;
+  if (fark < 60) return 'az önce';
+  if (fark < 3600) return `${Math.round(fark / 60)} dk`;
+  if (fark < 86400) return `${Math.round(fark / 3600)} sa`;
+  if (fark < 86400 * 7) return `${Math.round(fark / 86400)} gün`;
+  return tarih(sql).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+}
+
 export const saat = (sql: string) => tarih(sql).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
 export function gunEtiketi(sql: string): string {

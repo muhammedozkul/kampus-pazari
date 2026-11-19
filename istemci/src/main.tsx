@@ -64,6 +64,12 @@ function Kabuk({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="icerik">{children}</main>
+      <footer className="alt-bilgi">
+        <span>
+          <b>Kampüs</b>Pazarı · DPÜ öğrencileri için
+        </span>
+        <span>Alışverişi kampüste, yüz yüze yapın. Ödeme site üzerinden alınmaz.</span>
+      </footer>
       <nav className="alt-nav" aria-label="Ana menü">
         <NavLink to="/" end>
           <Simge ad="ev" />
@@ -93,6 +99,9 @@ function Kabuk({ children }: { children: ReactNode }) {
       <div className="bildirimler" aria-live="polite">
         {bildirimler.map((b) => (
           <div key={b.id} className={`bildirim bildirim-${b.tur}`}>
+            <span className="bildirim-simge">
+              <Simge ad={b.tur === 'hata' ? 'kapat' : 'tik'} boyut={14} />
+            </span>
             {b.metin}
           </div>
         ))}

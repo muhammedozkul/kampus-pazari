@@ -36,6 +36,7 @@ export default function IlanFormu() {
   const [kosul, setKosul] = useState<Kosul | ''>('');
   const [fotolar, setFotolar] = useState<string[]>([]);
   const [fotoIsleniyor, setFotoIsleniyor] = useState(false);
+  const [surukleniyor, setSurukleniyor] = useState(false);
   const [hata, setHata] = useState('');
   const [kaydediliyor, setKaydediliyor] = useState(false);
   const dosyaSecici = useRef<HTMLInputElement>(null);
@@ -233,9 +234,25 @@ export default function IlanFormu() {
                   </div>
                 ))}
                 {fotolar.length < SINIRLAR.fotoSayisi && (
-                  <button type="button" className="foto-ekle" onClick={() => dosyaSecici.current?.click()} disabled={fotoIsleniyor}>
+                  <button
+                    type="button"
+                    className={`foto-ekle ${surukleniyor ? 'surukleniyor' : ''}`}
+                    onClick={() => dosyaSecici.current?.click()}
+                    disabled={fotoIsleniyor}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setSurukleniyor(true);
+                    }}
+                    onDragLeave={() => setSurukleniyor(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setSurukleniyor(false);
+                      fotoEkle(e.dataTransfer.files);
+                    }}
+                  >
                     <Simge ad="foto" boyut={26} />
                     <span>{fotoIsleniyor ? 'Hazırlanıyor…' : 'Fotoğraf ekle'}</span>
+                    <small className="masaustu">ya da buraya sürükle</small>
                   </button>
                 )}
               </div>
