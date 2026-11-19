@@ -57,7 +57,7 @@ npm run demo     # örnek öğrenciler, ilanlar ve mesajlar
 npm start        # http://127.0.0.1:8776
 ```
 
-Mac'te bunun yerine `Kampüs Pazarı.command` dosyasına çift tıklaman yeter.
+Ya da yalnız açılış dosyasına çift tıkla: Mac'te `Kampüs Pazarı.command`, Windows'ta `Kampüs Pazarı.bat`. İlk açılışta paketleri kurar, arayüzü derler ve demo veriyi yükler, sonra tarayıcıyı açar. Siteyi kullandığın sürece açılan pencere açık kalmalı.
 
 - Anında yenilenen geliştirme modu: `npm run dev`
 - Testler: `npm test` · Tür denetimi: `npm run check`

@@ -57,7 +57,7 @@ npm run demo     # sample students, listings and messages
 npm start        # http://127.0.0.1:8776
 ```
 
-On macOS you can instead double-click `Kampüs Pazarı.command`.
+Or just double-click the launcher: `Kampüs Pazarı.command` on macOS, `Kampüs Pazarı.bat` on Windows. It installs packages, builds the app and loads demo data on the first run, then opens the browser. Keep the window open while you use the site.
 
 - Development mode with instant reload: `npm run dev`
 - Tests: `npm test` · Type check: `npm run check`
