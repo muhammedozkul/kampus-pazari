@@ -4,6 +4,7 @@ import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-route
 import { EPOSTA_DESENI, EPOSTA_UZANTISI, SINIRLAR } from '../../../ortak/sabitler.ts';
 import { api, type Ben } from '../api.ts';
 import { Simge } from '../bilesenler.tsx';
+import { KategoriCizimi } from '../cizimler.tsx';
 import { useDurum } from '../durum.tsx';
 
 // Kod istendikten sonra sayfadan çıkılıp geri gelinirse kod ekranı kaybolmasın diye bekleyen giriş saklanır.
@@ -113,6 +114,7 @@ export default function Giris() {
             Kampüs<b>Pazarı</b>
           </span>
         </div>
+        <span className="giris-etiket">🎓 Yalnız Dumlupınar öğrencileri</span>
         <h1>
           Kampüste ihtiyacın olan şey,
           <br />
@@ -135,6 +137,30 @@ export default function Giris() {
         <p className="ince">Ödeme site üzerinden yapılmaz. Alışverişi kampüste, yüz yüze yaparsınız.</p>
       </section>
 
+      <div className="giris-sag">
+        <div className="vitrin" aria-hidden="true">
+          <div className="vitrin-kart v1">
+            <div className="kategori-gorsel kg-kitap">
+              <KategoriCizimi kategori="kitap" />
+            </div>
+            <b>120 ₺</b>
+            <span>Kalkülüs ders kitabı</span>
+          </div>
+          <div className="vitrin-kart v2">
+            <div className="kategori-gorsel kg-elektronik">
+              <KategoriCizimi kategori="elektronik" />
+            </div>
+            <b className="mor">Takaslık</b>
+            <span>Laptop standı</span>
+          </div>
+          <div className="vitrin-kart v3">
+            <div className="kategori-gorsel kg-spor">
+              <KategoriCizimi kategori="spor" />
+            </div>
+            <b className="sari">Arıyorum</b>
+            <span>Basketbol topu</span>
+          </div>
+        </div>
       <section className="giris-kart">
         {adim === 'eposta' ? (
           <form onSubmit={kodIste} className="form">
@@ -215,6 +241,7 @@ export default function Giris() {
           </a>
         </p>
       </section>
+      </div>
     </div>
   );
 }

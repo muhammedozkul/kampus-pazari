@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { ILAN_TURLERI, KATEGORILER, SIKAYET_NEDENLERI, type IlanTuru, type Kategori, type SikayetNedeni } from '../../ortak/sabitler.ts';
 import { api, fotoAdresi, type Ilan } from './api.ts';
 import { useDurum } from './durum.tsx';
+import { KategoriCizimi } from './cizimler.tsx';
 import { avatarRengi, basHarfler, fiyatYaz, goreceZaman } from './yardimci.ts';
 
 const YOLLAR: Record<string, ReactNode> = {
@@ -91,13 +92,18 @@ export function Avatar({ id, ad, boyut = 40, cevrimici }: { id: number; ad: stri
 }
 
 export function TurRozeti({ tur }: { tur: IlanTuru }) {
-  return <span className={`rozet rozet-${tur}`}>{ILAN_TURLERI[tur].kisa}</span>;
+  return (
+    <span className={`rozet rozet-${tur}`}>
+      <i className="rozet-nokta" />
+      {ILAN_TURLERI[tur].kisa}
+    </span>
+  );
 }
 
 export function KategoriGorseli({ kategori }: { kategori: Kategori }) {
   return (
-    <div className={`kategori-gorsel kg-${kategori}`}>
-      <span>{KATEGORILER[kategori]?.simge ?? '📦'}</span>
+    <div className={`kategori-gorsel kg-${kategori}`} title={KATEGORILER[kategori]?.ad}>
+      <KategoriCizimi kategori={kategori} />
     </div>
   );
 }
@@ -109,15 +115,19 @@ export function FiyatEtiketi({ ilan }: { ilan: Pick<Ilan, 'tur' | 'fiyat' | 'tak
   return <span className="fiyat">{fiyatYaz(ilan.fiyat)}</span>;
 }
 
-export function IlanKarti({ ilan, favoriDegisti }: { ilan: Ilan; favoriDegisti?: (id: number, favori: boolean) => void }) {
+export function IlanKarti({ ilan, favoriDegisti, sira = 0 }: { ilan: Ilan; favoriDegisti?: (id: number, favori: boolean) => void; sira?: number }) {
   const { ben, bildir } = useDurum();
   const [favori, setFavori] = useState(ilan.favori);
+  const [atis, setAtis] = useState(false);
   useEffect(() => setFavori(ilan.favori), [ilan.favori]);
   const kendi = ben?.id === ilan.kullanici.id;
-  const favoriCevir = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const favoriCevir = async () => {
     const yeni = !favori;
     setFavori(yeni);
+    if (yeni) {
+      setAtis(true);
+      setTimeout(() => setAtis(false), 600);
+    }
     try {
       await api(`/ilanlar/${ilan.id}/favori`, { govde: { favori: yeni } });
       favoriDegisti?.(ilan.id, yeni);
@@ -127,27 +137,57 @@ export function IlanKarti({ ilan, favoriDegisti }: { ilan: Ilan; favoriDegisti?:
     }
   };
   return (
-    <Link to={`/ilan/${ilan.id}`} className={`ilan-karti ${ilan.durum !== 'aktif' ? 'soluk' : ''}`}>
+    <article className={`ilan-karti ${ilan.durum !== 'aktif' ? 'soluk' : ''}`} style={{ '--sira': Math.min(sira, 12) } as React.CSSProperties}>
       <div className="ilan-karti-gorsel">
         {ilan.foto ? <img src={fotoAdresi(ilan.foto)} alt="" loading="lazy" /> : <KategoriGorseli kategori={ilan.kategori} />}
         <TurRozeti tur={ilan.tur} />
         {ilan.durum === 'tamamlandi' && <span className="tamam-serit">{ilan.tur === 'ariyorum' ? 'Bulundu' : 'Satıldı / takaslandı'}</span>}
-        {!kendi && (
-          <button className={`favori-dugme ${favori ? 'acik' : ''}`} onClick={favoriCevir} aria-label={favori ? 'Favorilerden çıkar' : 'Favorilere ekle'}>
-            <Simge ad="kalp" boyut={18} dolu={favori} />
-          </button>
-        )}
       </div>
       <div className="ilan-karti-govde">
         <FiyatEtiketi ilan={ilan} />
-        <h3>{ilan.baslik}</h3>
+        <h3>
+          <Link to={`/ilan/${ilan.id}`} className="kart-baglanti">
+            {ilan.baslik}
+          </Link>
+        </h3>
         {ilan.takasIstegi && <p className="takas-istegi">⇄ {ilan.takasIstegi}</p>}
         <div className="ilan-karti-alt">
-          <span>{ilan.kullanici.ad}</span>
+          <span className="kart-kisi">
+            <Avatar id={ilan.kullanici.id} ad={ilan.kullanici.ad} boyut={20} />
+            {ilan.kullanici.ad}
+          </span>
           <span>{goreceZaman(ilan.olusturma)}</span>
         </div>
       </div>
-    </Link>
+      {!kendi && (
+        <button
+          className={`favori-dugme ${favori ? 'acik' : ''} ${atis ? 'atis' : ''}`}
+          onClick={favoriCevir}
+          aria-label={favori ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          aria-pressed={favori}
+        >
+          <Simge ad="kalp" boyut={18} dolu={favori} />
+        </button>
+      )}
+    </article>
+  );
+}
+
+/** İlanlar yüklenirken kartların yerini tutan iskelet. */
+export function IlanIskeleti({ adet = 8 }: { adet?: number }) {
+  return (
+    <div className="ilan-izgara" aria-hidden="true">
+      {Array.from({ length: adet }, (_, i) => (
+        <div key={i} className="ilan-karti iskelet">
+          <div className="ilan-karti-gorsel parilti" />
+          <div className="ilan-karti-govde">
+            <span className="parilti cizgi kisa" />
+            <span className="parilti cizgi" />
+            <span className="parilti cizgi orta" />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

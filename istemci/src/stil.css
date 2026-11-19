@@ -972,19 +972,6 @@ legend {
 .kategori-gorsel span {
   filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.12));
 }
-.kg-kitap { background: linear-gradient(135deg, #fde8e3, #fbd5c9); }
-.kg-elektronik { background: linear-gradient(135deg, #e3edfb, #cddff8); }
-.kg-ev { background: linear-gradient(135deg, #fbf0d9, #f5e0b5); }
-.kg-giyim { background: linear-gradient(135deg, #ede7fb, #ddd2f7); }
-.kg-spor { background: linear-gradient(135deg, #e1f4ea, #c8ebd7); }
-.kg-ozel_ders { background: linear-gradient(135deg, #fde3ee, #f9cde0); }
-.kg-ev_arkadasi { background: linear-gradient(135deg, #e0f2f4, #c5e7eb); }
-.kg-diger { background: linear-gradient(135deg, #f1ebe3, #e6ded3); }
-@media (prefers-color-scheme: dark) {
-  .kategori-gorsel[class*='kg-'] {
-    background: linear-gradient(135deg, var(--yuzey-2), var(--cizgi));
-  }
-}
 .ilan-karti-govde {
   padding: 12px 14px 14px;
   display: flex;

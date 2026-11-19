@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { KATEGORILER, KATEGORI_LISTESI } from '../../../ortak/sabitler.ts';
 import { api, type Ilan } from '../api.ts';
-import { BosDurum, IlanKarti, Simge, Yukleniyor } from '../bilesenler.tsx';
+import { BosDurum, IlanIskeleti, IlanKarti, Simge } from '../bilesenler.tsx';
+import { KategoriSimgesi } from '../cizimler.tsx';
 import { useDurum } from '../durum.tsx';
 
 const SEKMELER = [
@@ -13,8 +14,13 @@ const SEKMELER = [
   { deger: 'ariyorum', ad: 'Arıyorum' },
 ];
 
+function selam() {
+  const s = new Date().getHours();
+  return s < 6 ? 'İyi geceler' : s < 12 ? 'Günaydın' : s < 18 ? 'İyi günler' : 'İyi akşamlar';
+}
+
 export default function Ilanlar() {
-  const { ben } = useDurum();
+  const { ben, cevrimici } = useDurum();
   const [p, setP] = useSearchParams();
   const [ilanlar, setIlanlar] = useState<Ilan[] | null>(null);
   const [dahaVar, setDahaVar] = useState(false);
@@ -83,9 +89,28 @@ export default function Ilanlar() {
   return (
     <div className="sayfa">
       <section className="karsilama">
-        <div>
-          <h1>Merhaba {ben?.ad?.split(' ')[0]} 👋</h1>
-          <p>Bugün ne arıyorsun? Bulamazsan bir "Arıyorum" ilanı ver, sahibi seni bulsun.</p>
+        <div className="karsilama-sus" aria-hidden="true">
+          <span className="sus sus-1" />
+          <span className="sus sus-2" />
+          <span className="sus sus-3" />
+          <svg className="sus-cizgi" viewBox="0 0 120 40">
+            <path d="M2 30c14-24 28-24 38 0s26 24 38 0 28-24 40 0" />
+          </svg>
+        </div>
+        <div className="karsilama-metin">
+          <span className="karsilama-ust">{selam()} 👋</span>
+          <h1>
+            {ben?.ad?.split(' ')[0]}, bugün kampüste <em>ne arıyorsun?</em>
+          </h1>
+          <p>Bulamazsan bir "Arıyorum" ilanı ver, sahibi seni bulsun.</p>
+          <div className="karsilama-eylem">
+            <Link to="/ilan-ver" className="dugme dugme-ana">
+              <Simge ad="arti" boyut={18} /> İlan ver
+            </Link>
+            <Link to="/ilan-ver?tur=ariyorum" className="dugme dugme-cam">
+              <Simge ad="ara" boyut={18} /> Arıyorum de
+            </Link>
+          </div>
         </div>
         {ozet && (
           <div className="ozet-sayilar">
@@ -98,7 +123,10 @@ export default function Ilanlar() {
               <span>öğrenci</span>
             </div>
             <div>
-              <b className="yesil-nokta">{ozet.cevrimici}</b>
+              <b>
+                <i className="canli-nokta" />
+                {Math.max(cevrimici.size, 1)}
+              </b>
               <span>çevrimiçi</span>
             </div>
           </div>
@@ -185,13 +213,13 @@ export default function Ilanlar() {
         </button>
         {KATEGORI_LISTESI.map((k) => (
           <button key={k} className={`kategori-cip ${kategori === k ? 'secili' : ''}`} onClick={() => degistir('kategori', kategori === k ? '' : k)}>
-            <span>{KATEGORILER[k].simge}</span> {KATEGORILER[k].ad}
+            <KategoriSimgesi kategori={k} /> {KATEGORILER[k].ad}
           </button>
         ))}
       </div>
 
       {hata && <p className="form-hata">{hata}</p>}
-      {!ilanlar && !hata && <Yukleniyor metin="İlanlar getiriliyor…" />}
+      {!ilanlar && !hata && <IlanIskeleti />}
       {ilanlar && ilanlar.length === 0 && (
         <BosDurum simge={p.get('q') ? '🔍' : '🛍️'} baslik={p.get('q') ? 'Aradığın şey henüz yok' : 'Burada henüz ilan yok'}>
           <p>{tur === 'ariyorum' ? 'Kimse bir şey aramıyor gibi.' : 'İlk ilanı sen ver ya da aradığını duyur.'}</p>
@@ -203,8 +231,8 @@ export default function Ilanlar() {
       {ilanlar && ilanlar.length > 0 && (
         <>
           <div className="ilan-izgara">
-            {ilanlar.map((i) => (
-              <IlanKarti key={i.id} ilan={i} />
+            {ilanlar.map((i, sira) => (
+              <IlanKarti key={i.id} ilan={i} sira={sira} />
             ))}
           </div>
           {dahaVar && (

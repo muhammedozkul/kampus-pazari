@@ -14,6 +14,7 @@ import {
 } from '../../../ortak/sabitler.ts';
 import { api, fotoAdresi, type IlanDetayi } from '../api.ts';
 import { Simge, Yukleniyor } from '../bilesenler.tsx';
+import { KategoriSimgesi } from '../cizimler.tsx';
 import { useDurum } from '../durum.tsx';
 import { fotoKucult } from '../yardimci.ts';
 
@@ -132,7 +133,7 @@ export default function IlanFormu() {
                 {KATEGORI_LISTESI.map((k) => (
                   <label key={k} className={`kategori-cip ${kategori === k ? 'secili' : ''}`}>
                     <input type="radio" name="kategori" checked={kategori === k} onChange={() => setKategori(k)} />
-                    <span>{KATEGORILER[k].simge}</span> {KATEGORILER[k].ad}
+                    <KategoriSimgesi kategori={k} /> {KATEGORILER[k].ad}
                   </label>
                 ))}
               </div>

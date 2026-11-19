@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { ILAN_TURLERI, KATEGORILER, KOSULLAR } from '../../../ortak/sabitler.ts';
 import { api, fotoAdresi, type IlanDetayi } from '../api.ts';
 import { Avatar, BosDurum, FiyatEtiketi, KategoriGorseli, SikayetPenceresi, Simge, TurRozeti, Yukleniyor } from '../bilesenler.tsx';
+import { KategoriSimgesi } from '../cizimler.tsx';
 import { useDurum } from '../durum.tsx';
 import { goreceZaman, tarih } from '../yardimci.ts';
 
@@ -127,8 +128,8 @@ export default function IlanDetay() {
         <div className="detay-bilgi">
           <div className="detay-ust">
             <TurRozeti tur={ilan.tur} />
-            <span className="ince">
-              {KATEGORILER[ilan.kategori].simge} {KATEGORILER[ilan.kategori].ad}
+            <span className="ince kategori-etiket">
+              <KategoriSimgesi kategori={ilan.kategori} boyut={15} /> {KATEGORILER[ilan.kategori].ad}
             </span>
           </div>
           <h1>{ilan.baslik}</h1>
