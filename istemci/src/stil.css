@@ -1853,6 +1853,12 @@ legend {
   margin: 4px 0 10px;
   font-weight: 600;
 }
+.kod-satiri {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
 .kod-goster {
   display: inline-flex;
   align-items: baseline;

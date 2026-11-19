@@ -62,7 +62,7 @@ export default function TestPosta() {
       </label>
       <div className="posta-listesi">
         {mektuplar?.length === 0 && <p className="ince">Henüz mektup yok. Giriş sayfasından kod iste.</p>}
-        {mektuplar?.map((m) => {
+        {mektuplar?.map((m, i) => {
           const kod = m.konu.match(/\d{6}/)?.[0];
           return (
             <article key={m.id} className="mektup">
@@ -72,10 +72,17 @@ export default function TestPosta() {
               </div>
               <p className="mektup-konu">{m.konu}</p>
               {kod && (
-                <button className="kod-goster" onClick={() => kopyala(m)} title="Kopyala">
-                  {kod}
-                  <small>{kopyalanan === m.id ? 'kopyalandı ✓' : 'kopyala'}</small>
-                </button>
+                <div className="kod-satiri">
+                  <button className="kod-goster" onClick={() => kopyala(m)} title="Kopyala">
+                    {kod}
+                    <small>{kopyalanan === m.id ? 'kopyalandı ✓' : 'kopyala'}</small>
+                  </button>
+                  {mektuplar.findIndex((x) => x.alici === m.alici) === i ? (
+                    <Link className="dugme dugme-ana" to={`/giris?eposta=${encodeURIComponent(m.alici)}&kod=${kod}`}>
+                      Bu kodla giriş yap →
+                    </Link>
+                  ) : null}
+                </div>
               )}
               <pre className="mektup-govde">{m.govde}</pre>
             </article>

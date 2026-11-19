@@ -1,19 +1,43 @@
 // Giriş: öğrenci e-postası → 6 haneli kod → (ilk kez) ad ve bölüm.
 import { useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { EPOSTA_DESENI, EPOSTA_UZANTISI, SINIRLAR } from '../../../ortak/sabitler.ts';
 import { api, type Ben } from '../api.ts';
 import { Simge } from '../bilesenler.tsx';
 import { useDurum } from '../durum.tsx';
 
+// Kod istendikten sonra sayfadan çıkılıp geri gelinirse kod ekranı kaybolmasın diye bekleyen giriş saklanır.
+const BEKLEYEN = 'kp:bekleyen-giris';
+function bekleyenOku(): string | null {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(BEKLEYEN) ?? 'null') as { eposta: string; zaman: number } | null;
+    return v && Date.now() - v.zaman < 10 * 60_000 ? v.eposta : null;
+  } catch {
+    return null;
+  }
+}
+function bekleyenYaz(eposta: string | null) {
+  try {
+    if (eposta) sessionStorage.setItem(BEKLEYEN, JSON.stringify({ eposta, zaman: Date.now() }));
+    else sessionStorage.removeItem(BEKLEYEN);
+  } catch {
+    /* gizli pencere vb. */
+  }
+}
+
 export default function Giris() {
   const { ben, benYenile, benAyarla } = useDurum();
   const git = useNavigate();
   const konum = useLocation();
+  const [p] = useSearchParams();
   const geri = (konum.state as { geri?: string } | null)?.geri ?? '/';
-  const [adim, setAdim] = useState<'eposta' | 'kod'>('eposta');
-  const [kullaniciAdi, setKullaniciAdi] = useState('');
-  const [kod, setKod] = useState('');
+  // Test posta kutusundaki "Bu kodla giriş yap" bağlantısı ?eposta=…&kod=… ile gelir.
+  const adresEposta = p.get('eposta');
+  const adresKod = p.get('kod')?.replace(/\D/g, '').slice(0, 6) ?? '';
+  const baslangicEposta = (adresEposta && EPOSTA_DESENI.test(adresEposta) ? adresEposta : null) ?? bekleyenOku();
+  const [adim, setAdim] = useState<'eposta' | 'kod'>(baslangicEposta ? 'kod' : 'eposta');
+  const [kullaniciAdi, setKullaniciAdi] = useState(baslangicEposta ?? '');
+  const [kod, setKod] = useState(baslangicEposta ? adresKod : '');
   const [hata, setHata] = useState('');
   const [bekliyor, setBekliyor] = useState(false);
   const [geriSayim, setGeriSayim] = useState(0);
@@ -21,6 +45,15 @@ export default function Giris() {
 
   // Kullanıcı tam adres yapıştırırsa yalnız baş kısmı al.
   const eposta = (kullaniciAdi.includes('@') ? kullaniciAdi.trim() : kullaniciAdi.trim() + EPOSTA_UZANTISI).toLocaleLowerCase('en-US');
+
+  // Bağlantıyla kod geldiyse kendiliğinden doğrula (bir kez).
+  const otomatik = useRef(false);
+  useEffect(() => {
+    if (otomatik.current || ben !== null || adim !== 'kod' || kod.length !== 6) return;
+    otomatik.current = true;
+    dogrula(kod);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ben]);
 
   useEffect(() => {
     if (geriSayim <= 0) return;
@@ -42,6 +75,7 @@ export default function Giris() {
     setBekliyor(true);
     try {
       await api('/giris/kod', { govde: { eposta } });
+      bekleyenYaz(eposta);
       setAdim('kod');
       setKod('');
       setGeriSayim(30);
@@ -59,6 +93,7 @@ export default function Giris() {
     setBekliyor(true);
     try {
       await api('/giris/dogrula', { govde: { eposta, kod: deger } });
+      bekleyenYaz(null);
       await benYenile();
     } catch (h) {
       setHata((h as Error).message);
@@ -134,7 +169,7 @@ export default function Giris() {
             }}
             className="form"
           >
-            <button type="button" className="geri-baglanti" onClick={() => (setAdim('eposta'), setHata(''))}>
+            <button type="button" className="geri-baglanti" onClick={() => (setAdim('eposta'), setHata(''), setKod(''), bekleyenYaz(null))}>
               <Simge ad="geri" boyut={16} /> E-postayı değiştir
             </button>
             <h2>Kodu gir</h2>
@@ -175,7 +210,9 @@ export default function Giris() {
           </form>
         )}
         <p className="giris-alt">
-          <Link to="/posta">Test posta kutusu</Link>
+          <a href={adim === 'kod' ? `/posta?alici=${encodeURIComponent(eposta)}` : '/posta'} target="_blank" rel="noreferrer">
+            Test posta kutusu
+          </a>
         </p>
       </section>
     </div>
