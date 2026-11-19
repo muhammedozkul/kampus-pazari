@@ -62,7 +62,9 @@ export default function GenelSohbet() {
   return (
     <div className="sohbet-sayfa">
       <div className="sohbet-baslik">
-        <div className="oda-simge">💬</div>
+        <div className="oda-simge" aria-hidden="true">
+          <Simge ad="sohbet" boyut={22} />
+        </div>
         <div>
           <h1>Genel sohbet</h1>
           <span className="ince">
@@ -81,7 +83,9 @@ export default function GenelSohbet() {
         )}
         {mesajlar && gorunen.length === 0 && (
           <div className="bos-durum kucuk">
-            <div className="bos-simge">👋</div>
+            <div className="bos-simge" aria-hidden="true">
+              <Simge ad="sohbet" boyut={36} />
+            </div>
             <h3>Sohbeti sen başlat</h3>
             <p>"Elinde X dersi notu olan var mı?" gibi bir şey sorabilirsin.</p>
           </div>

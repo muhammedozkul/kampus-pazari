@@ -70,7 +70,7 @@ export default function Yonetim() {
         </button>
       </div>
       {!sikayetler && <Yukleniyor />}
-      {sikayetler?.length === 0 && <BosDurum simge="✨" baslik={durum === 'acik' ? 'Bekleyen şikayet yok' : 'Kapatılan şikayet yok'} />}
+      {sikayetler?.length === 0 && <BosDurum simge="tik" baslik={durum === 'acik' ? 'Bekleyen şikayet yok' : 'Kapatılan şikayet yok'} />}
       <div className="sikayet-listesi">
         {sikayetler?.map((s) => (
           <article key={s.id} className="sikayet-karti">

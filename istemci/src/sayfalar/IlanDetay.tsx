@@ -33,7 +33,7 @@ export default function IlanDetay() {
 
   if (hata)
     return (
-      <BosDurum simge="🫥" baslik={hata}>
+      <BosDurum simge="kapat" baslik={hata}>
         <Link to="/" className="dugme">
           İlanlara dön
         </Link>
@@ -204,9 +204,11 @@ export default function IlanDetay() {
             <>
               {ilan.durum === 'aktif' && !mesajKutusu && (
                 <div className="eylemler ana-eylem">
-                  <span className="yapiskan-fiyat">
-                    <FiyatEtiketi ilan={ilan} />
-                  </span>
+                  {!(ilan.tur === 'ariyorum' && ilan.fiyat === null) && (
+                    <span className="yapiskan-fiyat">
+                      <FiyatEtiketi ilan={ilan} />
+                    </span>
+                  )}
                   <button className="dugme dugme-ana dugme-genis" onClick={() => setMesajKutusu(true)}>
                     <Simge ad="mesaj" boyut={18} /> {ilan.tur === 'ariyorum' ? 'Bende var, yaz' : 'Satıcıya mesaj gönder'}
                   </button>

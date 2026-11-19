@@ -61,6 +61,19 @@ const YOLLAR: Record<string, ReactNode> = {
   ciftTik: <path d="m2 12 5 5 9-10M12 16l1 1 9-10" />,
   saga: <path d="m9 5 7 7-7 7" />,
   filtre: <path d="M4 5h16l-6 8v6l-4-2v-4z" />,
+  etiket: (
+    <>
+      <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" />
+      <path d="M7.5 7.5h.01" />
+    </>
+  ),
+  takas: <path d="M4 8h13l-3-3M20 16H7l3 3" />,
+  pusula: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2 5-5 2 2-5z" />
+    </>
+  ),
 };
 
 export function Simge({ ad, boyut = 20, dolu = false }: { ad: keyof typeof YOLLAR | string; boyut?: number; dolu?: boolean }) {
@@ -202,10 +215,13 @@ export function Yukleniyor({ metin = 'Yükleniyor…' }: { metin?: string }) {
   );
 }
 
-export function BosDurum({ simge, baslik, children }: { simge: string; baslik: string; children?: ReactNode }) {
+/** Boş/hata durumu. `simge`, YOLLAR'daki bir simge adıdır (emoji değil). */
+export function BosDurum({ simge, baslik, children }: { simge: keyof typeof YOLLAR; baslik: string; children?: ReactNode }) {
   return (
     <div className="bos-durum">
-      <div className="bos-simge">{simge}</div>
+      <div className="bos-simge" aria-hidden="true">
+        <Simge ad={simge} boyut={36} />
+      </div>
       <h3>{baslik}</h3>
       {children}
     </div>

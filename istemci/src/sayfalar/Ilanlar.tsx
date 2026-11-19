@@ -20,7 +20,7 @@ function selam() {
 }
 
 export default function Ilanlar() {
-  const { ben, cevrimici } = useDurum();
+  const { ben } = useDurum();
   const [p, setP] = useSearchParams();
   const [ilanlar, setIlanlar] = useState<Ilan[] | null>(null);
   const [dahaVar, setDahaVar] = useState(false);
@@ -28,13 +28,8 @@ export default function Ilanlar() {
   const [hata, setHata] = useState('');
   const [arama, setArama] = useState(p.get('q') ?? '');
   const [filtreAcik, setFiltreAcik] = useState(false);
-  const [ozet, setOzet] = useState<{ aktifIlan: number; uye: number; cevrimici: number } | null>(null);
 
   const sorgu = p.toString();
-  useEffect(() => {
-    api<typeof ozet>('/ozet').then(setOzet).catch(() => {});
-  }, []);
-
   useEffect(() => {
     let iptal = false;
     setIlanlar(null);
@@ -89,65 +84,30 @@ export default function Ilanlar() {
   return (
     <div className="sayfa">
       <section className="karsilama">
-        <div className="karsilama-sus" aria-hidden="true">
-          <span className="sus sus-1" />
-          <span className="sus sus-2" />
-          <span className="sus sus-3" />
-          <svg className="sus-cizgi" viewBox="0 0 120 40">
-            <path d="M2 30c14-24 28-24 38 0s26 24 38 0 28-24 40 0" />
-          </svg>
+        <p className="karsilama-selam">
+          {selam()}
+          {ben?.ad ? `, ${ben.ad.split(' ')[0]}` : ''}
+        </p>
+        <h1>Bugün kampüste ne arıyorsun?</h1>
+        <div className="arama-satiri">
+          <label className="arama-kutusu">
+            <Simge ad="ara" boyut={20} />
+            <input value={arama} onChange={(e) => setArama(e.target.value)} placeholder="Kitap, kulaklık, bisiklet…" aria-label="İlanlarda ara" />
+            {arama && (
+              <button className="ikon-dugme kucuk" onClick={() => setArama('')} aria-label="Aramayı temizle">
+                <Simge ad="kapat" boyut={16} />
+              </button>
+            )}
+          </label>
+          <button className={`dugme filtre-dugme ${filtreAcik || filtreSayisi ? 'aktif' : ''}`} onClick={() => setFiltreAcik((a) => !a)} aria-expanded={filtreAcik}>
+            <Simge ad="filtre" boyut={18} /> <span className="masaustu">Filtre</span>
+            {filtreSayisi > 0 && <span className="sayac">{filtreSayisi}</span>}
+          </button>
         </div>
-        <div className="karsilama-metin">
-          <span className="karsilama-ust">{selam()} 👋</span>
-          <h1>
-            {ben?.ad?.split(' ')[0]}, bugün kampüste <em>ne arıyorsun?</em>
-          </h1>
-          <p>Bulamazsan bir "Arıyorum" ilanı ver, sahibi seni bulsun.</p>
-          <div className="karsilama-eylem">
-            <Link to="/ilan-ver" className="dugme dugme-ana">
-              <Simge ad="arti" boyut={18} /> İlan ver
-            </Link>
-            <Link to="/ilan-ver?tur=ariyorum" className="dugme dugme-cam">
-              <Simge ad="ara" boyut={18} /> Arıyorum de
-            </Link>
-          </div>
-        </div>
-        {ozet && (
-          <div className="ozet-sayilar">
-            <div>
-              <b>{ozet.aktifIlan}</b>
-              <span>aktif ilan</span>
-            </div>
-            <div>
-              <b>{ozet.uye}</b>
-              <span>öğrenci</span>
-            </div>
-            <div>
-              <b>
-                <i className="canli-nokta" />
-                {Math.max(cevrimici.size, 1)}
-              </b>
-              <span>çevrimiçi</span>
-            </div>
-          </div>
-        )}
+        <p className="karsilama-ipucu">
+          Bulamazsan <Link to="/ilan-ver?tur=ariyorum">bir “Arıyorum” ilanı ver</Link>, sahibi seni bulsun.
+        </p>
       </section>
-
-      <div className="arama-satiri">
-        <label className="arama-kutusu">
-          <Simge ad="ara" boyut={18} />
-          <input value={arama} onChange={(e) => setArama(e.target.value)} placeholder="Kitap, kulaklık, bisiklet…" aria-label="İlanlarda ara" />
-          {arama && (
-            <button className="ikon-dugme kucuk" onClick={() => setArama('')} aria-label="Aramayı temizle">
-              <Simge ad="kapat" boyut={16} />
-            </button>
-          )}
-        </label>
-        <button className={`dugme filtre-dugme ${filtreAcik || filtreSayisi ? 'aktif' : ''}`} onClick={() => setFiltreAcik((a) => !a)}>
-          <Simge ad="filtre" boyut={18} /> <span className="masaustu">Filtre</span>
-          {filtreSayisi > 0 && <span className="sayac">{filtreSayisi}</span>}
-        </button>
-      </div>
 
       {filtreAcik && (
         <div className="filtre-paneli">
@@ -221,7 +181,7 @@ export default function Ilanlar() {
       {hata && <p className="form-hata">{hata}</p>}
       {!ilanlar && !hata && <IlanIskeleti />}
       {ilanlar && ilanlar.length === 0 && (
-        <BosDurum simge={p.get('q') ? '🔍' : '🛍️'} baslik={p.get('q') ? 'Aradığın şey henüz yok' : 'Burada henüz ilan yok'}>
+        <BosDurum simge={p.get('q') ? 'ara' : 'etiket'} baslik={p.get('q') ? 'Aradığın şey henüz yok' : 'Burada henüz ilan yok'}>
           <p>{tur === 'ariyorum' ? 'Kimse bir şey aramıyor gibi.' : 'İlk ilanı sen ver ya da aradığını duyur.'}</p>
           <Link to={`/ilan-ver?tur=ariyorum${p.get('q') ? `&baslik=${encodeURIComponent(p.get('q')!)}` : ''}`} className="dugme dugme-ana">
             "Arıyorum" ilanı ver

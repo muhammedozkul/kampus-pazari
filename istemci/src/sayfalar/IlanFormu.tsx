@@ -18,7 +18,7 @@ import { KategoriSimgesi } from '../cizimler.tsx';
 import { useDurum } from '../durum.tsx';
 import { fotoKucult } from '../yardimci.ts';
 
-const TUR_SIMGELERI: Record<IlanTuru, string> = { satilik: '🏷️', takas: '🔄', satilik_takas: '🤝', ariyorum: '🔎' };
+const TUR_SIMGELERI: Record<IlanTuru, string> = { satilik: 'etiket', takas: 'takas', satilik_takas: 'takas', ariyorum: 'ara' };
 
 export default function IlanFormu() {
   const { id } = useParams();
@@ -91,7 +91,7 @@ export default function IlanFormu() {
       const v = duzenleme
         ? await api<{ id: number }>(`/ilanlar/${id}`, { yontem: 'PATCH', govde })
         : await api<{ id: number }>('/ilanlar', { govde });
-      bildir(duzenleme ? 'İlan güncellendi.' : 'İlanın yayında! 🎉');
+      bildir(duzenleme ? 'İlan güncellendi.' : 'İlanın yayında!');
       git(`/ilan/${v.id}`, { replace: true });
     } catch (h) {
       setHata((h as Error).message);
@@ -118,7 +118,9 @@ export default function IlanFormu() {
             {ILAN_TURU_LISTESI.map((t) => (
               <label key={t} className={`tur-secenek ${tur === t ? 'secili' : ''}`}>
                 <input type="radio" name="tur" checked={tur === t} onChange={() => setTur(t)} />
-                <span className="tur-simge">{TUR_SIMGELERI[t]}</span>
+                <span className="tur-simge" aria-hidden="true">
+                  <Simge ad={TUR_SIMGELERI[t]} boyut={22} />
+                </span>
                 <b>{ILAN_TURLERI[t].ad}</b>
                 <small>{ILAN_TURLERI[t].aciklama}</small>
               </label>

@@ -50,7 +50,7 @@ export default function Mesajlar() {
         <h1>Mesajlar</h1>
         {!sohbetler && <Yukleniyor />}
         {sohbetler?.length === 0 && (
-          <BosDurum simge="✉️" baslik="Henüz mesajın yok">
+          <BosDurum simge="posta" baslik="Henüz mesajın yok">
             <p>Bir ilana girip "Mesaj gönder" dediğinde sohbet burada açılır.</p>
             <Link to="/" className="dugme">
               İlanlara göz at
@@ -67,7 +67,7 @@ export default function Mesajlar() {
               </div>
               <div className="sohbet-satiri-alt">
                 <span className="son-mesaj">
-                  {s.engelli ? '🚫 ' : ''}
+                  {s.engelli && <Simge ad="engel" boyut={14} />}
                   {s.son.benden ? 'Sen: ' : ''}
                   {s.son.metin}
                 </span>
@@ -82,7 +82,7 @@ export default function Mesajlar() {
           <AcikSohbet key={sohbetId} sohbetId={sohbetId} listeYenile={listeYenile} />
         ) : (
           <div className="sohbet-sec">
-            <BosDurum simge="💬" baslik="Bir sohbet seç">
+            <BosDurum simge="sohbet" baslik="Bir sohbet seç">
               <p>Soldan bir sohbet seç ya da bir ilandan satıcıya yaz.</p>
             </BosDurum>
           </div>
@@ -163,7 +163,7 @@ function AcikSohbet({ sohbetId, listeYenile }: { sohbetId: number; listeYenile: 
 
   if (hata)
     return (
-      <BosDurum simge="🫥" baslik={hata}>
+      <BosDurum simge="kapat" baslik={hata}>
         <button className="dugme" onClick={() => git('/mesajlar')}>
           Mesajlara dön
         </button>

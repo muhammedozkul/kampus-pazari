@@ -637,10 +637,6 @@ legend {
   margin: 28px 0 24px;
   letter-spacing: -0.03em;
 }
-.giris-tanitim em {
-  font-style: normal;
-  color: var(--ana);
-}
 .ozellik-listesi {
   list-style: none;
   padding: 0;
@@ -742,39 +738,6 @@ legend {
 .sayfa.dar {
   max-width: 720px;
   margin: 0 auto;
-}
-.karsilama {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  background: linear-gradient(120deg, var(--ana-acik), var(--yuzey) 70%);
-  border: 1px solid var(--cizgi);
-  margin-bottom: 20px;
-}
-.karsilama p {
-  margin: 6px 0 0;
-  color: var(--metin-2);
-}
-.ozet-sayilar {
-  display: flex;
-  gap: 24px;
-}
-.ozet-sayilar div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.ozet-sayilar b {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-.ozet-sayilar span {
-  font-size: 0.78rem;
-  color: var(--metin-2);
 }
 .arama-satiri {
   display: flex;
@@ -1972,15 +1935,6 @@ legend {
   }
   .bildirimler {
     bottom: calc(var(--alt-yukseklik) + 16px + env(safe-area-inset-bottom));
-  }
-  .karsilama {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 18px;
-    gap: 14px;
-  }
-  .ozet-sayilar {
-    justify-content: space-around;
   }
   .sekmeler {
     width: 100%;

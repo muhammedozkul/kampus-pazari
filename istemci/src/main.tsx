@@ -123,7 +123,9 @@ function Bulunamadi() {
   const git = useNavigate();
   return (
     <div className="bos-durum">
-      <div className="bos-simge">🧭</div>
+      <div className="bos-simge" aria-hidden="true">
+        <Simge ad="pusula" boyut={36} />
+      </div>
       <h3>Bu sayfa yok</h3>
       <button className="dugme" onClick={() => git('/')}>
         İlanlara dön

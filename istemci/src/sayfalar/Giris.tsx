@@ -4,7 +4,7 @@ import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-route
 import { EPOSTA_DESENI, EPOSTA_UZANTISI, SINIRLAR } from '../../../ortak/sabitler.ts';
 import { api, type Ben } from '../api.ts';
 import { Simge } from '../bilesenler.tsx';
-import { KategoriCizimi } from '../cizimler.tsx';
+import { KategoriSimgesi } from '../cizimler.tsx';
 import { useDurum } from '../durum.tsx';
 
 // Kod istendikten sonra sayfadan çıkılıp geri gelinirse kod ekranı kaybolmasın diye bekleyen giriş saklanır.
@@ -114,53 +114,30 @@ export default function Giris() {
             Kampüs<b>Pazarı</b>
           </span>
         </div>
-        <span className="giris-etiket">🎓 Yalnız Dumlupınar öğrencileri</span>
+        <span className="giris-etiket">
+          <Simge ad="kalkan" boyut={16} /> Yalnız Dumlupınar öğrencileri
+        </span>
         <h1>
-          Kampüste ihtiyacın olan şey,
-          <br />
-          <em>bir öğrenci uzağında.</em>
+          Kampüste ihtiyacın olan şey, bir öğrenci uzağında.
         </h1>
         <ul className="ozellik-listesi">
           <li>
-            <span>📚</span>Ders kitabını sat, yenisini takasla
+            <span aria-hidden="true"><KategoriSimgesi kategori="kitap" boyut={20} /></span>Ders kitabını sat, yenisini takasla
           </li>
           <li>
-            <span>🔎</span>Aradığını "Arıyorum" ilanıyla duyur
+            <span aria-hidden="true"><Simge ad="ara" boyut={20} /></span>Aradığını "Arıyorum" ilanıyla duyur
           </li>
           <li>
-            <span>💬</span>Genel sohbette sor, özelden anlaş
+            <span aria-hidden="true"><Simge ad="sohbet" boyut={20} /></span>Genel sohbette sor, özelden anlaş
           </li>
           <li>
-            <span>🎓</span>Yalnız DPÜ öğrencileri: herkes doğrulanmış
+            <span aria-hidden="true"><Simge ad="kalkan" boyut={20} /></span>Yalnız DPÜ öğrencileri: herkes doğrulanmış
           </li>
         </ul>
         <p className="ince">Ödeme site üzerinden yapılmaz. Alışverişi kampüste, yüz yüze yaparsınız.</p>
       </section>
 
       <div className="giris-sag">
-        <div className="vitrin" aria-hidden="true">
-          <div className="vitrin-kart v1">
-            <div className="kategori-gorsel kg-kitap">
-              <KategoriCizimi kategori="kitap" />
-            </div>
-            <b>120 ₺</b>
-            <span>Kalkülüs ders kitabı</span>
-          </div>
-          <div className="vitrin-kart v2">
-            <div className="kategori-gorsel kg-elektronik">
-              <KategoriCizimi kategori="elektronik" />
-            </div>
-            <b className="mor">Takaslık</b>
-            <span>Laptop standı</span>
-          </div>
-          <div className="vitrin-kart v3">
-            <div className="kategori-gorsel kg-spor">
-              <KategoriCizimi kategori="spor" />
-            </div>
-            <b className="sari">Arıyorum</b>
-            <span>Basketbol topu</span>
-          </div>
-        </div>
       <section className="giris-kart">
         {adim === 'eposta' ? (
           <form onSubmit={kodIste} className="form">
@@ -267,7 +244,9 @@ function ProfilKur({ ben, bitti }: { ben: Ben; bitti: (b: Ben) => void }) {
     <div className="giris-sayfa tek">
       <section className="giris-kart">
         <form onSubmit={kaydet} className="form">
-          <div className="hosgeldin">🎉</div>
+          <div className="hosgeldin" aria-hidden="true">
+            <Simge ad="tik" boyut={32} />
+          </div>
           <h2>Hoş geldin!</h2>
           <p className="ince">
             <b>{ben.eposta}</b> doğrulandı. Diğer öğrenciler seni nasıl görsün?

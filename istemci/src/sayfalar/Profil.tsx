@@ -58,7 +58,7 @@ export default function Profil() {
     };
   }, [sekme, kid, kendi]);
 
-  if (hata) return <BosDurum simge="🫥" baslik={hata} />;
+  if (hata) return <BosDurum simge="kapat" baslik={hata} />;
   if (!profil) return <Yukleniyor />;
 
   const engelCevir = async (hedef: number, engelle: boolean) => {
@@ -124,10 +124,10 @@ export default function Profil() {
               <h1>{profil.ad}</h1>
               <p>{profil.bolum ?? 'DPÜ öğrencisi'}</p>
               <p className="ince">
-                🎓 Doğrulanmış öğrenci · {tarih(profil.uyelik).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' })} tarihinden beri üye
+                <Simge ad="kalkan" boyut={14} /> Doğrulanmış öğrenci · {tarih(profil.uyelik).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' })} tarihinden beri üye
                 {profil.tamamlanan > 0 && ` · ${profil.tamamlanan} tamamlanan alışveriş`}
               </p>
-              <p className="ince">{acik ? '🟢 Şu an çevrimiçi' : profil.sonGorulme ? `Son görülme ${goreceZaman(profil.sonGorulme)}` : ''}</p>
+              <p className="ince">{acik ? 'Şu an çevrimiçi' : profil.sonGorulme ? `Son görülme ${goreceZaman(profil.sonGorulme)}` : ''}</p>
               {profil.yasakli && <p className="form-hata">Bu hesap yönetici tarafından kapatıldı.</p>}
             </>
           )}
@@ -191,7 +191,7 @@ export default function Profil() {
         !engellenenler ? (
           <Yukleniyor />
         ) : engellenenler.length === 0 ? (
-          <BosDurum simge="🕊️" baslik="Kimseyi engellemedin" />
+          <BosDurum simge="engel" baslik="Kimseyi engellemedin" />
         ) : (
           <div className="engel-listesi">
             {engellenenler.map((k) => (
@@ -211,7 +211,7 @@ export default function Profil() {
       ) : !ilanlar ? (
         <Yukleniyor />
       ) : ilanlar.length === 0 ? (
-        <BosDurum simge={sekme === 'favoriler' ? '💛' : '📭'} baslik={sekme === 'favoriler' ? 'Favori ilanın yok' : kendi ? 'Henüz ilan vermedin' : 'Aktif ilanı yok'}>
+        <BosDurum simge={sekme === 'favoriler' ? 'kalp' : 'etiket'} baslik={sekme === 'favoriler' ? 'Favori ilanın yok' : kendi ? 'Henüz ilan vermedin' : 'Aktif ilanı yok'}>
           {kendi && sekme === 'ilanlar' && (
             <Link to="/ilan-ver" className="dugme dugme-ana">
               İlk ilanını ver
