@@ -5,7 +5,7 @@ import { api } from '../api.ts';
 import { Simge } from '../bilesenler.tsx';
 import { goreceZaman } from '../yardimci.ts';
 
-type Mektup = { id: number; alici: string; konu: string; govde: string; olusturma: string };
+type Mektup = { id: number; alici: string; konu: string; govde: string; olusturma: string; gecerli: boolean };
 
 export default function TestPosta() {
   const [p, setP] = useSearchParams();
@@ -62,7 +62,7 @@ export default function TestPosta() {
       </label>
       <div className="posta-listesi">
         {mektuplar?.length === 0 && <p className="ince">Henüz mektup yok. Giriş sayfasından kod iste.</p>}
-        {mektuplar?.map((m, i) => {
+        {mektuplar?.map((m) => {
           const kod = m.konu.match(/\d{6}/)?.[0];
           return (
             <article key={m.id} className="mektup">
@@ -77,11 +77,13 @@ export default function TestPosta() {
                     {kod}
                     <small>{kopyalanan === m.id ? 'kopyalandı ✓' : 'kopyala'}</small>
                   </button>
-                  {mektuplar.findIndex((x) => x.alici === m.alici) === i ? (
+                  {m.gecerli ? (
                     <Link className="dugme dugme-ana" to={`/giris?eposta=${encodeURIComponent(m.alici)}&kod=${kod}`}>
                       Bu kodla giriş yap →
                     </Link>
-                  ) : null}
+                  ) : (
+                    <span className="ince">Kullanıldı ya da süresi doldu</span>
+                  )}
                 </div>
               )}
               <pre className="mektup-govde">{m.govde}</pre>

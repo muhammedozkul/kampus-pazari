@@ -46,6 +46,12 @@ export default function Ilanlar() {
     };
   }, [sorgu]);
 
+  // Adres değişince (ör. "İlanlar" menüsü ya da geri tuşu) arama kutusu da güncellensin.
+  const adrestekiArama = p.get('q') ?? '';
+  useEffect(() => {
+    setArama((a) => (a.trim() === adrestekiArama ? a : adrestekiArama));
+  }, [adrestekiArama]);
+
   // Yazmayı bırakınca aramayı uygula.
   useEffect(() => {
     const t = setTimeout(() => {
@@ -119,11 +125,27 @@ export default function Ilanlar() {
         <div className="filtre-paneli">
           <label className="alan">
             <span>En az (₺)</span>
-            <input type="number" min={0} inputMode="numeric" defaultValue={p.get('min') ?? ''} onBlur={(e) => degistir('min', e.target.value)} />
+            <input
+              key={p.get('min') ?? ''}
+              type="number"
+              min={0}
+              inputMode="numeric"
+              defaultValue={p.get('min') ?? ''}
+              onBlur={(e) => degistir('min', e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+            />
           </label>
           <label className="alan">
             <span>En çok (₺)</span>
-            <input type="number" min={0} inputMode="numeric" defaultValue={p.get('max') ?? ''} onBlur={(e) => degistir('max', e.target.value)} />
+            <input
+              key={p.get('max') ?? ''}
+              type="number"
+              min={0}
+              inputMode="numeric"
+              defaultValue={p.get('max') ?? ''}
+              onBlur={(e) => degistir('max', e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+            />
           </label>
           <label className="alan">
             <span>Sıralama</span>

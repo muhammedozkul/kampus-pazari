@@ -42,13 +42,21 @@ export default function Profil() {
   }, [kid]);
 
   useEffect(() => {
+    let iptal = false;
     if (sekme === 'engellenenler') {
-      api<{ kullanicilar: typeof engellenenler }>('/engellenenler').then((v) => setEngellenenler(v.kullanicilar));
-      return;
+      api<{ kullanicilar: typeof engellenenler }>('/engellenenler').then((v) => !iptal && setEngellenenler(v.kullanicilar));
+    } else {
+      setIlanlar(null);
+      // Başkasının profilinde yalnız onun ilanları gösterilir; sekme sıfırlanmadan önceki istek boşa düşer.
+      const yol = sekme === 'favoriler' && kendi ? '/ilanlar?favoriler=1' : `/ilanlar?kullanici=${kid}`;
+      api<{ ilanlar: Ilan[] }>(yol)
+        .then((v) => !iptal && setIlanlar(v.ilanlar))
+        .catch(() => !iptal && setIlanlar([]));
     }
-    setIlanlar(null);
-    api<{ ilanlar: Ilan[] }>(sekme === 'favoriler' ? '/ilanlar?favoriler=1' : `/ilanlar?kullanici=${kid}`).then((v) => setIlanlar(v.ilanlar));
-  }, [sekme, kid]);
+    return () => {
+      iptal = true;
+    };
+  }, [sekme, kid, kendi]);
 
   if (hata) return <BosDurum simge="🫥" baslik={hata} />;
   if (!profil) return <Yukleniyor />;
@@ -128,6 +136,11 @@ export default function Profil() {
           {kendi ? (
             !duzenle && (
               <>
+                {ben?.rol === 'yonetici' && (
+                  <Link to="/yonetim" className="dugme">
+                    <Simge ad="kalkan" boyut={18} /> Yönetim paneli
+                  </Link>
+                )}
                 <button className="dugme" onClick={() => setDuzenle(true)}>
                   <Simge ad="duzenle" boyut={18} /> Düzenle
                 </button>

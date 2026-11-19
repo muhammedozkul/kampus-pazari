@@ -22,11 +22,13 @@ export default function Mesajlar() {
 
   useCanli((o) => {
     if (o.tur === 'ozel_mesaj') {
+      // Listede olmayan yeni bir sohbetse listeyi sunucudan yeniden al.
+      if (!sohbetler?.some((s) => s.id === o.sohbetId)) {
+        listeYenile();
+        return;
+      }
       setSohbetler((l) => {
-        if (!l || !l.some((s) => s.id === o.sohbetId)) {
-          listeYenile();
-          return l;
-        }
+        if (!l) return l;
         const guncel = l.map((s) =>
           s.id === o.sohbetId
             ? {

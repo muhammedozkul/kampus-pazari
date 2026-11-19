@@ -8,6 +8,7 @@ import { after, before, describe, test } from 'node:test';
 import { uygulamaKur } from '../sunucu/uygulama.ts';
 import { veritabaniAc, type Db } from '../sunucu/veritabani.ts';
 import { epostaDuzelt } from '../sunucu/kimlik.ts';
+import { aramaKelimeleri } from '../sunucu/uygulama.ts';
 
 let sunucu: Server;
 let taban = '';
@@ -70,6 +71,15 @@ describe('e-posta kuralı', () => {
     assert.equal(epostaDuzelt('ali@gmail.com'), null);
     assert.equal(epostaDuzelt('@ogr.dpu.edu.tr'), null);
     assert.equal(epostaDuzelt(42), null);
+  });
+});
+
+describe('Türkçe arama', () => {
+  test('harfleri sadeleştirir ve ünsüz yumuşamasını kapsar', () => {
+    assert.deepEqual(aramaKelimeleri('Kitap'), [['kitap', 'kitab']]);
+    assert.deepEqual(aramaKelimeleri('İŞLETİM  sistemi'), [['isletim'], ['sistemi']]);
+    assert.deepEqual(aramaKelimeleri('ağaç'), [['agac']]);
+    assert.deepEqual(aramaKelimeleri('   '), []);
   });
 });
 
@@ -138,6 +148,12 @@ describe('ilan, engel ve mesaj', () => {
     assert.equal((await istek('/api/ilanlar?tur=takas', { cerez: mehmet.cerez })).veri.ilanlar.length, 1);
     assert.equal((await istek('/api/ilanlar?tur=ariyorum', { cerez: mehmet.cerez })).veri.ilanlar.length, 0);
     assert.equal((await istek('/api/ilanlar?max=100', { cerez: mehmet.cerez })).veri.ilanlar.length, 0);
+    // "kitap" yazınca "Kitabı" da bulunur; Türkçe klavyesiz yazım da çalışır; kelimeler ayrı ayrı aranır.
+    for (const sorgu of ['kitap', 'isletim', 'sistemleri işletim', 'İŞLETİM kitabı']) {
+      const v = await istek('/api/ilanlar?q=' + encodeURIComponent(sorgu), { cerez: mehmet.cerez });
+      assert.equal(v.veri.ilanlar.length, 1, sorgu);
+    }
+    assert.equal((await istek('/api/ilanlar?q=' + encodeURIComponent('kitap bisiklet'), { cerez: mehmet.cerez })).veri.ilanlar.length, 0);
   });
 
   test('başkasının ilanı düzenlenemez', async () => {
@@ -177,6 +193,39 @@ describe('ilan, engel ve mesaj', () => {
     assert.equal((await istek(`/api/ilanlar/${ilanId}`, { cerez: mehmet.cerez })).durum, 404);
     await istek(`/api/kullanicilar/${mehmet.id}/engelle`, { govde: { engelle: false }, cerez: ayse.cerez });
     assert.equal((await istek('/api/ilanlar', { cerez: mehmet.cerez })).veri.ilanlar.length, 1);
+  });
+
+  test('kendi genel mesajını gövdesiz DELETE ile siler, başkasınınkini silemez', async () => {
+    const m = await istek('/api/genel', { govde: { metin: 'silinecek' }, cerez: ayse.cerez });
+    assert.equal(m.durum, 201);
+    const yabanci = await fetch(`${taban}/api/genel/${m.veri.mesaj.id}`, { method: 'DELETE', headers: { cookie: mehmet.cerez } });
+    assert.equal(yabanci.status, 403);
+    const kendi = await fetch(`${taban}/api/genel/${m.veri.mesaj.id}`, { method: 'DELETE', headers: { cookie: ayse.cerez } });
+    assert.equal(kendi.status, 200);
+    // Gövdesi olan ama JSON olmayan istek yine reddedilir.
+    const form = await fetch(`${taban}/api/genel`, { method: 'POST', headers: { cookie: ayse.cerez, 'content-type': 'text/plain' }, body: 'x' });
+    assert.equal(form.status, 415);
+  });
+
+  test('nesne prototipindeki adlar (toString, constructor) seçenek sayılmaz', async () => {
+    const neden = await istek('/api/sikayet', { govde: { hedefTur: 'ilan', hedefId: ilanId, neden: 'toString' }, cerez: mehmet.cerez });
+    assert.equal(neden.durum, 400);
+    const tur = await istek('/api/sikayet', { govde: { hedefTur: 'constructor', hedefId: 1, neden: 'spam' }, cerez: mehmet.cerez });
+    assert.equal(tur.durum, 400);
+    const y = await istek('/api/ilanlar', { govde: { tur: 'satilik', kategori: 'kitap', baslik: 'Kosul deneme', fiyat: 5, kosul: 'toString' }, cerez: mehmet.cerez });
+    assert.equal(y.durum, 201);
+    const d = await istek(`/api/ilanlar/${y.veri.id}`, { cerez: mehmet.cerez });
+    assert.equal(d.veri.ilan.kosul, null);
+  });
+
+  test('test posta kutusu yalnız son ve kullanılmamış kodu geçerli gösterir', async () => {
+    const eposta = 'posta.deneme@ogr.dpu.edu.tr';
+    await istek('/api/giris/kod', { govde: { eposta } });
+    let v = await istek(`/api/test-posta?alici=${eposta}`);
+    assert.equal(v.veri.mektuplar[0].gecerli, true);
+    await istek('/api/giris/dogrula', { govde: { eposta, kod: sonKod(eposta) } });
+    v = await istek(`/api/test-posta?alici=${eposta}`);
+    assert.equal(v.veri.mektuplar[0].gecerli, false);
   });
 
   test('yönetici olmayan yönetim sayfasına giremez; yönetici yasaklayınca oturum kapanır', async () => {

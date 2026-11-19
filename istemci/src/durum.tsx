@@ -35,7 +35,8 @@ export function DurumSaglayici({ children }: { children: ReactNode }) {
   const [engellenenler, setEngellenenler] = useState<Set<number>>(new Set());
   const [okunmamis, setOkunmamis] = useState(0);
   const [cevrimici, setCevrimici] = useState<Set<number>>(new Set());
-  const [bagli, setBagli] = useState(false);
+  // İlk açılışta "bağlanıyor" yazısı yanıp sönmesin: yalnız bağlantı koptuğunda false olur.
+  const [bagli, setBagli] = useState(true);
   const [bildirimler, setBildirimler] = useState<Bildirim[]>([]);
   const dinleyiciler = useRef(new Set<(o: CanliOlay) => void>());
   const aktifSohbet = useRef<number | null>(null);

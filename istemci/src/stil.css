@@ -405,6 +405,9 @@ legend {
 .ust-avatar {
   border-radius: 50%;
 }
+.mobil-yonetim {
+  display: none !important;
+}
 .baglanti-uyari {
   font-size: 0.78rem;
   color: var(--sari);
@@ -2090,6 +2093,9 @@ legend {
   }
   .ikon-dugme.mobil {
     display: inline-grid;
+  }
+  .mobil-yonetim {
+    display: inline-grid !important;
   }
   .mesaj-eylem {
     opacity: 0.6;

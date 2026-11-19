@@ -47,6 +47,11 @@ function Kabuk({ children }: { children: ReactNode }) {
           </nav>
           <div className="ust-sag">
             {!bagli && <span className="baglanti-uyari" title="Anlık bağlantı yeniden kuruluyor">bağlanıyor…</span>}
+            {ben.rol === 'yonetici' && (
+              <Link to="/yonetim" className="ikon-dugme mobil-yonetim" aria-label="Yönetim paneli" title="Yönetim paneli">
+                <Simge ad="kalkan" />
+              </Link>
+            )}
             <Link to="/ilan-ver" className="dugme dugme-ana ilan-ver-dugme">
               <Simge ad="arti" boyut={18} /> İlan ver
             </Link>

@@ -15,6 +15,7 @@ import {
   cerezOku,
   epostaDuzelt,
   KimlikHatasi,
+  KOD_DENEME_SINIRI,
   kodGonder,
   koduDogrula,
   OTURUM_CEREZI,
@@ -41,9 +42,29 @@ export type UygulamaAyari = {
   yoneticiEpostalari: string[];
 };
 
-// Türkçe büyük/küçük harf duyarsız arama için SQLite'a kendi fonksiyonumuzu ekleriz.
-function trKucuk(metin: unknown): string | null {
-  return typeof metin === 'string' ? metin.toLocaleLowerCase('tr-TR') : null;
+// Türkçe arama: küçük harfe çevirip Türkçe harfleri sadeleştiririz; böylece "isletim" de "İşletim"i bulur.
+const SADE: Record<string, string> = { ı: 'i', ş: 's', ğ: 'g', ç: 'c', ö: 'o', ü: 'u', â: 'a', î: 'i', û: 'u' };
+export function aramaMetni(metin: string): string {
+  return metin.toLocaleLowerCase('tr-TR').replace(/[ışğçöüâîû]/g, (h) => SADE[h]);
+}
+function trAra(metin: unknown): string | null {
+  return typeof metin === 'string' ? aramaMetni(metin) : null;
+}
+
+/**
+ * Aranan kelimeleri ve ünsüz yumuşaması karşılıklarını üretir: "kitap" → kitap / kitab (kitabı'yı bulsun),
+ * "renk" → renk / reng, "kanat" → kanat / kanad. Sadeleştirmeden sonra ç→c, ğ→g olduğu için c ve g de kapsanır.
+ */
+export function aramaKelimeleri(sorgu: string): string[][] {
+  const yumusak: Record<string, string> = { p: 'b', t: 'd', k: 'g' };
+  return aramaMetni(sorgu)
+    .split(/\s+/)
+    .filter((k) => k.length > 0)
+    .slice(0, 6)
+    .map((k) => {
+      const son = k.at(-1)!;
+      return k.length >= 3 && yumusak[son] ? [k, k.slice(0, -1) + yumusak[son]] : [k];
+    });
 }
 
 function metinAl(deger: unknown, alan: string, enCok: number, zorunlu = true): string {
@@ -77,7 +98,7 @@ function kokenUygunMu(koken: string | undefined, host: string | undefined): bool
 
 export function uygulamaKur(ayar: UygulamaAyari) {
   const { db, fotoKlasoru } = ayar;
-  db.function('tr_kucuk', trKucuk);
+  db.function('tr_ara', trAra);
   const yoneticiler = new Set(ayar.yoneticiEpostalari.map((e) => e.toLowerCase()));
   const canli = new Canli(db, kokenUygunMu);
   const app = express();
@@ -90,7 +111,9 @@ export function uygulamaKur(ayar: UygulamaAyari) {
   api.use((istek: Istek, _yanit, devam) => {
     if (istek.method !== 'GET' && istek.method !== 'HEAD') {
       if (!kokenUygunMu(istek.headers.origin, istek.headers.host)) throw new Hata(403, 'İzin verilmeyen kaynak.');
-      if (!istek.is('application/json')) throw new Hata(415, 'İstek JSON olmalı.');
+      // Gövdesi olan istek JSON olmalı (form gönderimiyle başka siteden istek atılamasın). Gövdesiz DELETE serbest.
+      const govdeVar = Number(istek.headers['content-length'] ?? 0) > 0 || !!istek.headers['transfer-encoding'];
+      if (govdeVar && !istek.is('application/json')) throw new Hata(415, 'İstek JSON olmalı.');
     }
     istek.ben = oturumBul(db, cerezOku(istek.headers.cookie, OTURUM_CEREZI)) ?? undefined;
     devam();
@@ -252,10 +275,21 @@ export function uygulamaKur(ayar: UygulamaAyari) {
   // ---------- Test posta kutusu (geliştirme) ----------
   api.get('/test-posta', (istek, yanit) => {
     const alici = epostaDuzelt(istek.query.alici);
-    const mektuplar = alici
-      ? db.prepare('SELECT * FROM test_posta WHERE alici = ? ORDER BY id DESC LIMIT 30').all(alici)
-      : db.prepare('SELECT * FROM test_posta ORDER BY id DESC LIMIT 30').all();
-    yanit.json({ mektuplar });
+    const mektuplar = (
+      alici
+        ? db.prepare('SELECT * FROM test_posta WHERE alici = ? ORDER BY id DESC LIMIT 30').all(alici)
+        : db.prepare('SELECT * FROM test_posta ORDER BY id DESC LIMIT 30').all()
+    ) as { id: number; alici: string }[];
+    // Bir alıcının yalnız en son mektubundaki kod, kullanılmamış ve süresi dolmamışsa geçerlidir.
+    const gecerliKod = db.prepare('SELECT 1 FROM dogrulama_kodlari WHERE eposta = ? AND kullanildi = 0 AND son_gecerlilik > ? AND deneme < ?');
+    const gorulen = new Set<string>();
+    yanit.json({
+      mektuplar: mektuplar.map((m) => {
+        const enSon = !gorulen.has(m.alici);
+        gorulen.add(m.alici);
+        return { ...m, gecerli: enSon && !!gecerliKod.get(m.alici, Date.now(), KOD_DENEME_SINIRI) };
+      }),
+    });
   });
 
   // ---------- Özet ----------
@@ -294,9 +328,16 @@ export function uygulamaKur(ayar: UygulamaAyari) {
       p.kategori = q.kategori;
     }
     if (typeof q.q === 'string' && q.q.trim()) {
-      const aranan = q.q.trim().slice(0, 60).toLocaleLowerCase('tr-TR').replace(/[\\%_]/g, (h) => '\\' + h);
-      kosullar.push("tr_kucuk(i.baslik || ' ' || i.aciklama || ' ' || IFNULL(i.takas_istegi, '')) LIKE :aranan ESCAPE '\\'");
-      p.aranan = `%${aranan}%`;
+      // Her kelime geçmeli (VE); bir kelimenin yumuşamış hâli de sayılır (VEYA).
+      const kacir = (k: string) => k.replace(/[\\%_]/g, (h) => '\\' + h);
+      const metin = "tr_ara(i.baslik || ' ' || i.aciklama || ' ' || IFNULL(i.takas_istegi, ''))";
+      aramaKelimeleri(q.q.slice(0, 60)).forEach((secenekler, ki) => {
+        const parcalar = secenekler.map((k, si) => {
+          p[`k${ki}_${si}`] = `%${kacir(k)}%`;
+          return `${metin} LIKE :k${ki}_${si} ESCAPE '\\'`;
+        });
+        kosullar.push(`(${parcalar.join(' OR ')})`);
+      });
     }
     const enAz = sayiAl(q.min);
     const enCok = sayiAl(q.max);
@@ -367,7 +408,7 @@ export function uygulamaKur(ayar: UygulamaAyari) {
     if ((tur === 'satilik' || tur === 'satilik_takas') && fiyat === null) throw new Hata(400, 'Satılık ilan için fiyat yaz.');
     const takasIstegi =
       tur === 'takas' || tur === 'satilik_takas' ? metinAl(b.takasIstegi, 'Takas isteği', SINIRLAR.takasIstegi, false) || null : null;
-    const kosul = typeof b.kosul === 'string' && b.kosul in KOSULLAR && tur !== 'ariyorum' ? b.kosul : null;
+    const kosul = typeof b.kosul === 'string' && Object.hasOwn(KOSULLAR, b.kosul) && tur !== 'ariyorum' ? b.kosul : null;
     return { tur, kategori, baslik, aciklama, fiyat, takasIstegi, kosul };
   };
 
@@ -715,8 +756,8 @@ export function uygulamaKur(ayar: UygulamaAyari) {
     const { hedefTur, neden } = istek.body ?? {};
     const hedefId = idAl(istek.body?.hedefId);
     const tablolar: Record<string, string> = { ilan: 'ilanlar', kullanici: 'kullanicilar', genel_mesaj: 'genel_mesajlar', ozel_mesaj: 'ozel_mesajlar' };
-    if (!tablolar[hedefTur]) throw new Hata(400, 'Neyi şikayet ettiğin belli değil.');
-    if (!(neden in SIKAYET_NEDENLERI)) throw new Hata(400, 'Bir neden seç.');
+    if (typeof hedefTur !== 'string' || !Object.hasOwn(tablolar, hedefTur)) throw new Hata(400, 'Neyi şikayet ettiğin belli değil.');
+    if (typeof neden !== 'string' || !Object.hasOwn(SIKAYET_NEDENLERI, neden)) throw new Hata(400, 'Bir neden seç.');
     if (!db.prepare(`SELECT 1 FROM ${tablolar[hedefTur]} WHERE id = ?`).get(hedefId)) throw new Hata(404, 'Şikayet edilen şey bulunamadı.');
     if (hedefTur === 'ozel_mesaj') {
       // Yalnız içinde bulunduğun sohbetteki mesajı şikayet edebilirsin.
